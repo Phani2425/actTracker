@@ -1,62 +1,140 @@
 "use client";
 
-import { SignIn } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useConvexAuth } from "convex/react";
-import { motion } from "framer-motion";
+import { ModeToggle } from "@/components/ModeToggle";
 import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { SignInButton, UserButton } from "@clerk/nextjs";
+import { Authenticated, Unauthenticated } from "convex/react";
+import { motion } from "framer-motion";
+import { BarChart3, Calendar, Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading } = useConvexAuth();
+const Header = () => {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      const redirectPath = localStorage.getItem("redirectAfterLogin") || "/dashboard";
-      localStorage.removeItem("redirectAfterLogin");
-      router.push(redirectPath);
-    }
-  }, [isAuthenticated, isLoading, router]);
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-16 sm:pt-20 pb-16 sm:pb-28 relative">
-      <div className="absolute top-4 sm:top-6 left-4 sm:left-6">
-        <Button asChild variant="outline" size="sm" className="flex items-center gap-1 sm:gap-2 cursor-pointer h-8 sm:h-9">
-          <Link href="/">
-            <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="text-xs sm:text-sm">Back to Home</span>
-          </Link>
-        </Button>
+    <motion.header
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 backdrop-blur-md border-b transition-all duration-200",
+        isHomePage 
+          ? "border-transparent bg-background/60" 
+          : "bg-background/90 border-border/40 dark:border-border/20"
+      )}
+    >
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <Link href={"/"} className="flex items-center gap-2.5 group">
+          <div className="relative flex items-center justify-center w-9 h-9">
+            <div className="absolute inset-0 rounded-md bg-black/10 dark:bg-white/10 backdrop-blur-sm"></div>
+            <div className="relative z-10 flex items-center justify-center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-300 group-hover:scale-110">
+                <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="2" className="text-black dark:text-white" />
+                <motion.path 
+                  d="M7 10.5h3v3H7v-3zM14 10.5h3v3h-3v-3zM7 17h3v3H7v-3zM14 17h3v3h-3v-3zM7 4h3v3H7V4zM14 4h3v3h-3V4z" 
+                  fill="currentColor" 
+                  className="text-black/70 dark:text-white/70"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                />
+              </svg>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-xl tracking-tight text-foreground">actTracker</span>
+            <span className="text-xs -mt-1 text-muted-foreground hidden sm:block">Track your uploads</span>
+          </div>
+        </Link>
+
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Unauthenticated>
+            <SignInButton mode="modal">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-foreground"
+              >
+                Sign in
+              </Button>
+            </SignInButton>
+            
+            <div className="hidden sm:block">
+              <ModeToggle />
+            </div>
+          </Unauthenticated>
+          
+          <Authenticated>
+            <Button
+              variant="ghost" 
+              size="sm"
+              onClick={toggleMobileMenu}
+              className="sm:hidden"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+
+            <div className="hidden sm:flex items-center gap-3">
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
+                  <Calendar className="w-4 h-4" />
+                  <span>Dashboard</span>
+                </Button>
+              </Link>
+              
+              <Link href="/analytics">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Analytics</span>
+                </Button>
+              </Link>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <ModeToggle />
+              <div className="flex justify-center items-center h-9 w-9 overflow-hidden rounded-full border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-colors bg-background shadow-sm">
+                <UserButton />
+              </div>
+            </div>
+          </Authenticated>
+        </div>
       </div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-[90%] sm:max-w-md"
-      >
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Sign In</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Sign in to continue to ActTracker
-          </p>
-        </div>
-        
-        <div className="flex justify-center">
-          <SignIn
-            afterSignInUrl={"/auth-callback"}
-            redirectUrl={"/auth-callback"}
-            appearance={{
-              elements: {
-                card: "bg-background shadow-md",
-                formButtonPrimary: "bg-primary hover:bg-primary/90",
-              },
-            }}
-          />
-        </div>
-      </motion.div>
-    </div>
+
+      <Authenticated>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="sm:hidden px-4 py-3 space-y-2 bg-background shadow-md border-t border-border/30"
+          >
+            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground">
+                <Calendar className="w-4 h-4" />
+                <span>Dashboard</span>
+              </Button>
+            </Link>
+              
+            <Link href="/analytics" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground">
+                <BarChart3 className="w-4 h-4" />
+                <span>Analytics</span>
+              </Button>
+            </Link>
+          </motion.div>
+        )}
+      </Authenticated>
+    </motion.header>
   );
-}
+};
+
+export default Header;
