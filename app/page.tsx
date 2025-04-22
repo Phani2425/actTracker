@@ -89,14 +89,14 @@ export default function Home() {
               </span>
             </motion.div>
 
-            <div className="mb-6 w-2xl mx-auto">
+            <div className="mb-6 w-[90%] sm:w-2xl mx-auto">
               <BlurText
                 text="Visualize your uploads. Track your consistency."
                 delay={100}
                 animateBy="words"
                 direction="top"
                 onAnimationComplete={handleAnimationComplete}
-                className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight sm:leading-[1.2]"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight sm:leading-[1.2] break-words"
               />
             </div>
 
@@ -104,7 +104,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: animationComplete ? 1 : 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className="text-lg text-slate-700 dark:text-muted-foreground mb-10 max-w-xl mx-auto"
+              className="text-base sm:text-lg text-slate-700 dark:text-muted-foreground mb-10 max-w-xl mx-auto"
             >
               Track and visualize your file upload activities with a beautiful GitHub-style contribution calendar.
               Upload any type of file, monitor your consistency, and see your upload patterns over time.
