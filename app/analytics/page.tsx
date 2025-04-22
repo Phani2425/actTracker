@@ -31,7 +31,7 @@ import {
   FileType,
   Flame,
   PieChart as PieChartIcon,
-  TrendingUp
+  TrendingUp,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
@@ -39,31 +39,18 @@ import DailyActivityChart from "@/components/analytics/DailyActivityChart";
 import FileTypeDistribution from "@/components/analytics/FileTypeDistribution";
 import TimeOfDayChart from "@/components/analytics/TimeOfDayChart";
 import { cn } from "@/lib/utils";
-
-interface UploadItem {
-  createdAt: string;
-  contentType: string;
-  [key: string]: any;
-}
-
-interface ActiveDay {
-  date: Date;
-  count: number;
-}
-
-interface FileTypeInfo {
-  type: string;
-  count: number;
-}
+import { ActiveDay, FileTypeInfo, UploadItem } from "@/lib/types";
 
 export default function AnalyticsPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState<"week" | "month" | "year">("month");
+  const [selectedPeriod, setSelectedPeriod] = useState<
+    "week" | "month" | "year"
+  >("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [activeStat, setActiveStat] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const uploads = useQuery(api.files.listUploads) as UploadItem[] | undefined;
-  
+
   const dateRange = useMemo(() => {
     if (selectedPeriod === "month") {
       return {
@@ -89,7 +76,7 @@ export default function AnalyticsPage() {
       };
     }
   }, [currentDate, selectedPeriod]);
-  
+
   const filteredUploads = useMemo(() => {
     if (!uploads) return [];
 
@@ -98,7 +85,7 @@ export default function AnalyticsPage() {
       return uploadDate >= dateRange.start && uploadDate <= dateRange.end;
     });
   }, [uploads, dateRange]);
-  
+
   const metrics = useMemo(() => {
     if (!uploads) {
       return {
@@ -113,37 +100,37 @@ export default function AnalyticsPage() {
     }
 
     const totalUploads = filteredUploads.length;
-    
+
     const dailyUploadCounts: Record<string, number> = {};
     filteredUploads.forEach((upload) => {
       const date = format(parseISO(upload.createdAt), "yyyy-MM-dd");
       dailyUploadCounts[date] = (dailyUploadCounts[date] || 0) + 1;
     });
-    
+
     const dayCount = eachDayOfInterval({
       start: dateRange.start,
       end: dateRange.end,
     }).length;
     const averagePerDay = totalUploads / (dayCount || 1);
-    
+
     let mostActiveDay: ActiveDay | null = null;
     let maxUploads = 0;
     Object.entries(dailyUploadCounts).forEach(([date, count]) => {
       if (count > maxUploads) {
         maxUploads = count;
-        mostActiveDay = { 
-          date: parseISO(date), 
-          count 
+        mostActiveDay = {
+          date: parseISO(date),
+          count,
         };
       }
     });
-    
+
     const hourlyUploadCounts: Record<string, number> = {};
     filteredUploads.forEach((upload) => {
       const hour = format(parseISO(upload.createdAt), "H");
       hourlyUploadCounts[hour] = (hourlyUploadCounts[hour] || 0) + 1;
     });
-    
+
     let mostActiveHour: number | null = null;
     let maxHourlyUploads = 0;
     Object.entries(hourlyUploadCounts).forEach(([hour, count]) => {
@@ -152,18 +139,18 @@ export default function AnalyticsPage() {
         mostActiveHour = parseInt(hour);
       }
     });
-    
+
     const mostActiveTime =
       mostActiveHour !== null
         ? format(new Date().setHours(mostActiveHour, 0, 0, 0), "h a")
         : null;
-    
+
     const fileTypeCounts: Record<string, number> = {};
     filteredUploads.forEach((upload) => {
       const fileType = upload.contentType.split("/")[0] || "other";
       fileTypeCounts[fileType] = (fileTypeCounts[fileType] || 0) + 1;
     });
-    
+
     let topFileType: FileTypeInfo | null = null;
     let maxFileTypeCount = 0;
     Object.entries(fileTypeCounts).forEach(([type, count]) => {
@@ -172,39 +159,39 @@ export default function AnalyticsPage() {
         topFileType = { type, count };
       }
     });
-    
+
     let currentStreak = 0;
     let longestStreak = 0;
-    
+
     if (uploads.length > 0) {
       const uniqueDates = uploads
         .map((upload) => format(parseISO(upload.createdAt), "yyyy-MM-dd"))
         .filter((value, index, self) => self.indexOf(value) === index)
         .map((dateStr) => parseISO(dateStr))
         .sort((a, b) => b.getTime() - a.getTime());
-      
+
       if (uniqueDates.length > 0) {
         let tempStreak = 1;
         let maxStreak = 1;
-        
+
         const today = new Date();
         const todayFormatted = format(today, "yyyy-MM-dd");
         const yesterdayFormatted = format(subDays(today, 1), "yyyy-MM-dd");
-        
+
         const hasUploadToday = uniqueDates.some(
           (date) => format(date, "yyyy-MM-dd") === todayFormatted
         );
-        
+
         const hasUploadYesterday = uniqueDates.some(
           (date) => format(date, "yyyy-MM-dd") === yesterdayFormatted
         );
-        
+
         if (hasUploadToday || hasUploadYesterday) {
           for (let i = 0; i < uniqueDates.length - 1; i++) {
             const current = uniqueDates[i];
             const next = uniqueDates[i + 1];
             const daysDifference = differenceInDays(current, next);
-            
+
             if (daysDifference === 1) {
               tempStreak++;
             } else {
@@ -212,17 +199,17 @@ export default function AnalyticsPage() {
               tempStreak = 1;
             }
           }
-          
+
           maxStreak = Math.max(maxStreak, tempStreak);
           currentStreak = tempStreak;
         } else {
           currentStreak = 0;
-          
+
           for (let i = 0; i < uniqueDates.length - 1; i++) {
             const current = uniqueDates[i];
             const next = uniqueDates[i + 1];
             const daysDifference = differenceInDays(current, next);
-            
+
             if (daysDifference === 1) {
               tempStreak++;
             } else {
@@ -230,14 +217,14 @@ export default function AnalyticsPage() {
               tempStreak = 1;
             }
           }
-          
+
           maxStreak = Math.max(maxStreak, tempStreak);
         }
-        
+
         longestStreak = maxStreak;
       }
     }
-    
+
     return {
       totalUploads,
       averagePerDay: parseFloat(averagePerDay.toFixed(1)),
@@ -248,7 +235,7 @@ export default function AnalyticsPage() {
       longestStreak,
     };
   }, [uploads, filteredUploads, dateRange]);
-  
+
   const navigatePeriod = (direction: "prev" | "next") => {
     setCurrentDate((currentDate) => {
       if (selectedPeriod === "month") {
@@ -274,7 +261,7 @@ export default function AnalyticsPage() {
       }
     });
   };
-  
+
   const isCurrentPeriod = useMemo(() => {
     const today = new Date();
 
@@ -291,7 +278,7 @@ export default function AnalyticsPage() {
       return today.getFullYear() === currentDate.getFullYear();
     }
   }, [selectedPeriod, currentDate]);
-  
+
   return (
     <div className="min-h-screen p-4 pt-28 lg:p-8 lg:pt-32" ref={containerRef}>
       <div className="container max-w-7xl mx-auto space-y-8">
@@ -481,7 +468,6 @@ export default function AnalyticsPage() {
             transition={{ delay: 0.3 }}
           >
             <div className="grid grid-cols-1 gap-6">
-
               <Card className="p-5 border border-border/50 dark:border-border/40 h-full">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
