@@ -97,7 +97,7 @@ export function UploadButton() {
       
       <Button 
         size="lg"
-        className="relative overflow-hidden group"
+        className="relative overflow-hidden group cursor-pointer"
         disabled={isUploading}
         onClick={() => fileInputRef.current?.click()}
       >
@@ -128,7 +128,7 @@ export function UploadButton() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 "
             >
               <Upload className="h-4 w-4 transition-transform group-hover:-translate-y-1 group-hover:scale-110" />
               <span>Upload File</span>

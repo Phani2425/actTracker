@@ -120,6 +120,7 @@ export default function Home() {
               transition={{ delay: 0.5, duration: 0.5 }}
             >
               <Button
+              className="cursor-pointer"
                 size="lg"
                 onClick={() => {
                   router.push("/dashboard");
@@ -136,6 +137,7 @@ export default function Home() {
                     .getElementById("features")
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
+                className="cursor-pointer"
               >
                 Learn More
               </Button>
@@ -217,7 +219,7 @@ export default function Home() {
                   See your activity at a glance and identify trends in your file upload consistency.
                 </p>
                 <div className="mt-auto">
-                  <Button variant="ghost" className="group">
+                  <Button variant="ghost" className="group cursor-pointer">
                     Learn more
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                   </Button>
@@ -638,7 +640,7 @@ export default function Home() {
                   onClick={() => {
                     router.push("/dashboard");
                   }}
-                  className="mx-auto bg-green-600 hover:bg-green-700"
+                  className="mx-auto bg-green-600 hover:bg-green-700 cursor-pointer"
                 >
                   Get started now
                 </Button>

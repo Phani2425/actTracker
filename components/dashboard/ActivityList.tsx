@@ -2,10 +2,21 @@
 
 import { motion } from "framer-motion";
 import { format, parseISO } from "date-fns";
-import { FileIcon, File, Download, FileText, FileImage, FileVideo, FileAudio } from "lucide-react";
+import {
+  FileIcon,
+  File,
+  Download,
+  FileText,
+  FileImage,
+  FileVideo,
+  FileAudio,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatFileSize } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useState, useEffect } from "react";
 
 interface Activity {
   _id: Id<"uploads">;
@@ -21,7 +32,37 @@ interface ActivityListProps {
   onViewFile: (fileId: Id<"uploads">) => void;
 }
 
-export default function ActivityList({ activities, onViewFile }: ActivityListProps) {
+export default function ActivityList({
+  activities,
+  onViewFile,
+}: ActivityListProps) {
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [localFileUrl, setLocalFileUrl] = useState<string | null>(null);
+
+  const fileDetails = useQuery(
+    api.files.getFileDetails,
+    selectedActivity ? { fileId: selectedActivity._id } : "skip"
+  );
+
+  const fileUrl = useQuery(
+    api.files.getFileUrl,
+    fileDetails?.storageId ? { storageId: fileDetails.storageId } : "skip"
+  );
+
+  useEffect(() => {
+    if (fileUrl) {
+      setLocalFileUrl(fileUrl);
+    }
+  }, [fileUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (localFileUrl && localFileUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(localFileUrl);
+      }
+    };
+  }, [selectedActivity, localFileUrl]);
+
   if (activities.length === 0) {
     return (
       <div className="py-8 text-center">
@@ -29,7 +70,14 @@ export default function ActivityList({ activities, onViewFile }: ActivityListPro
       </div>
     );
   }
-  
+
+  const handleDownload = (activity: Activity) => {
+    setSelectedActivity(activity);
+    if (fileUrl) {
+      window.open(fileUrl, "_blank");
+    }
+  };
+
   return (
     <div className="space-y-4">
       {activities.map((activity, index) => (
@@ -45,7 +93,9 @@ export default function ActivityList({ activities, onViewFile }: ActivityListPro
               <GetFileIcon contentType={activity.contentType} />
             </div>
             <div>
-              <h4 className="font-medium truncate max-w-[200px] sm:max-w-[300px]">{activity.filename}</h4>
+              <h4 className="font-medium truncate max-w-[200px] sm:max-w-[300px]">
+                {activity.filename}
+              </h4>
               <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <span>{formatFileSize(activity.size)}</span>
                 <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground"></span>
@@ -53,10 +103,10 @@ export default function ActivityList({ activities, onViewFile }: ActivityListPro
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 self-end sm:self-center">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
               className="h-9 gap-1.5 hover:bg-primary/10"
               onClick={() => onViewFile(activity._id)}
@@ -64,12 +114,12 @@ export default function ActivityList({ activities, onViewFile }: ActivityListPro
               <File className="h-4 w-4" />
               <span>View</span>
             </Button>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               size="sm"
               className="h-9 gap-1.5 hover:bg-primary/5"
-              onClick={() => window.open(`/api/download/${activity.storageId}`, "_blank")}
+              onClick={() => handleDownload(activity)}
             >
               <Download className="h-4 w-4" />
               <span className="hidden sm:inline">Download</span>
@@ -90,7 +140,10 @@ function GetFileIcon({ contentType }: { contentType: string }) {
     return <FileAudio className="h-5 w-5 text-amber-500" />;
   } else if (contentType.includes("pdf")) {
     return <FileText className="h-5 w-5 text-red-500" />;
-  } else if (contentType.includes("spreadsheet") || contentType.includes("excel")) {
+  } else if (
+    contentType.includes("spreadsheet") ||
+    contentType.includes("excel")
+  ) {
     return <FileText className="h-5 w-5 text-green-500" />;
   } else if (contentType.includes("document") || contentType.includes("word")) {
     return <FileText className="h-5 w-5 text-blue-500" />;

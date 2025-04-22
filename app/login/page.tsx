@@ -24,7 +24,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center pt-20 pb-28 relative">
       <div className="absolute top-22 left-6">
-        <Button asChild variant="outline" size="sm" className="flex items-center gap-2">
+        <Button asChild variant="outline" size="sm" className="flex items-center gap-2 cursor-pointer">
           <Link href="/">
             <Home className="h-4 w-4" />
             Back to Home

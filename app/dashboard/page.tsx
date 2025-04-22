@@ -407,7 +407,7 @@ export default function DashboardPage() {
                             <TooltipTrigger asChild>
                               {day.isCurrentYear ? (
                                 <motion.button
-                                  className={`h-4 w-4 rounded-sm ${getActivityColor(
+                                  className={`h-4 w-4 rounded-sm cursor-pointer ${getActivityColor(
                                     day.activity
                                   )} ${
                                     day.isSelected

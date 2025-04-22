@@ -89,7 +89,7 @@ export default function FileViewer({ fileId, onClose }: FileViewerProps) {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1.5"
+                    className="gap-1.5 cursor-pointer"
                     onClick={() => window.open(fileUrl, "_blank")}
                   >
                     <Download className="h-4 w-4" />
@@ -97,7 +97,7 @@ export default function FileViewer({ fileId, onClose }: FileViewerProps) {
                   </Button>
                 )}
 
-                <Button size="sm" variant="ghost" onClick={onClose}>
+                <Button className="cursor-pointer" size="sm" variant="ghost" onClick={onClose}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -180,7 +180,7 @@ function RenderFileContent({
         </p>
         <Button
           onClick={() => window.open(fileUrl, "_blank")}
-          className="gap-1.5"
+          className="gap-1.5 cursor-pointer"
           size="sm"
           variant="outline"
         >

@@ -412,7 +412,7 @@ export default function AnalyticsPage() {
               variant="outline"
               size="sm"
               onClick={() => navigatePeriod("prev")}
-              className="px-3 h-9"
+              className="px-3 h-9 cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -426,7 +426,7 @@ export default function AnalyticsPage() {
               size="sm"
               onClick={() => navigatePeriod("next")}
               disabled={isCurrentPeriod}
-              className="px-3 h-9"
+              className="px-3 h-9 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4" />
             </Button>
