@@ -1,13 +1,13 @@
 "use client";
 
 import { ModeToggle } from "@/components/ModeToggle";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 import { Authenticated, Unauthenticated } from "convex/react";
-import { BarChart3, Calendar, UploadCloud } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { BarChart3, Calendar } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const Header = () => {
@@ -73,13 +73,6 @@ const Header = () => {
                 <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
                   <Calendar className="w-4 h-4" />
                   <span>Dashboard</span>
-                </Button>
-              </Link>
-              
-              <Link href="/upload">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
-                  <UploadCloud className="w-4 h-4" />
-                  <span>Upload</span>
                 </Button>
               </Link>
               
