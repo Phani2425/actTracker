@@ -231,7 +231,7 @@ export default function DashboardPage() {
       "Dec",
     ];
     const containerWidth = Math.max(750, weeks.length * 16);
-    const segmentWidth = containerWidth / 12;
+    const segmentWidth = containerWidth / 9.8;
 
     return months.map((month, index) => ({
       name: month,
